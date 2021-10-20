@@ -9,9 +9,9 @@
   - ExUnit doesn't expose what test it's going to run when its in setup blocks, so if you're trying to trace overall test time it's very difficult to start a top level trace that includes all setup blocks and the test span.
 
 ## TODO
+  [] figure out way to not overwrite ExUnit and have our own name etc. (or maybe keep it as a drop-in replacement for a bit) (can't publish ex_unit package thanks mix.publish!) so this is higher priority so i can test this in CI
   [] add alternative and more robust synchronous hook system similar to rspec and cucumber
   [] protocol/behaviour with default no-op implementations for all callbacks
   [] ability to pass this protocol/behaviour into ExUnit config (currently pass in anon funcs)
   [] figure out way to start trace with test name from the first setup block
-  [] figure out way to not overwrite ExUnit and have our own name etc. (or maybe keep it as a drop-in replacement for a bit)
   [] actually return :ok or :passed as the state on a test that succeeded, right now `nil` means both the test hasn't run yet OR that the test has ran and passed. the only time `state` in ExUnit.Test changes is when the test fails currently.
