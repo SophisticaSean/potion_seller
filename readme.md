@@ -11,8 +11,10 @@
 ## TODO
   - [ ] figure out way to not overwrite ExUnit and have our own name etc. (or maybe keep it as a drop-in replacement for a bit) (can't publish ex_unit package thanks mix.publish!) so this is higher priority so i can test this in CI
   - [x] add alternative and more robust synchronous hook system similar to rspec and cucumber
+    - Hooks are now implemented and working properly.
   - [ ] swap hook system (limited to max 1 hook) to a middleware system similar to `setup` or absinthe middleware
   - [ ] protocol/behaviour with default no-op implementations for all callbacks
-  - [ ] ability to pass this protocol/behaviour into ExUnit config (currently pass in anon funcs)
+  - [x] ability to pass this protocol/behaviour into ExUnit config (currently pass in anon funcs)
+    - Now passed in via a `use` macro with `def overrideable`
   - [ ] figure out way to start trace with test name from the first setup block
   - [ ] actually return :ok or :passed as the state on a test that succeeded, right now `nil` means both the test hasn't run yet OR that the test has ran and passed. the only time `state` in ExUnit.Test changes is when the test fails currently.
