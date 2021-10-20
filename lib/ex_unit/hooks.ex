@@ -15,7 +15,6 @@ defmodule ExUnit.Hooks do
 
       @impl ExUnit.Hooks.Behaviour
       def test_started(test_info, context) do
-        IO.puts("default test_started behaviour")
         :ok
       end
 
