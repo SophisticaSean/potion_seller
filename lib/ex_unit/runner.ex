@@ -80,6 +80,7 @@ defmodule ExUnit.Runner do
       seed: opts[:seed],
       stats_pid: stats_pid,
       timeout: opts[:timeout],
+      hooks_module: opts[:hooks_module],
       trace: opts[:trace]
     }
   end
@@ -338,14 +339,24 @@ defmodule ExUnit.Runner do
   end
 
   defp run_tests(config, tests, context) do
-    Enum.reduce_while(tests, [], fn test, acc ->
-      Process.put(@current_key, test)
+    hooks_module = config.hooks_module
 
-      case run_test(config, test, context) do
-        {:ok, test} -> {:cont, [test | acc]}
-        :max_failures_reached -> {:halt, acc}
-      end
-    end)
+    # apply suite_started hook
+    apply(hooks_module, :suite_started, [tests, context])
+
+    test_results =
+      Enum.reduce_while(tests, [], fn test, acc ->
+        Process.put(@current_key, test)
+
+        case run_test(config, test, context) do
+          {:ok, test} -> {:cont, [test | acc]}
+          :max_failures_reached -> {:halt, acc}
+        end
+      end)
+    # apply suite_started hook
+    apply(hooks_module, :suite_finished, [tests, context])
+
+    test_results
   end
 
   defp run_test(config, %{tags: tags} = test, context) do
@@ -442,15 +453,26 @@ defmodule ExUnit.Runner do
     exec_on_exit(test, test_pid, timeout)
   end
 
-  defp spawn_test_monitor(%{seed: seed}, test, parent_pid, context) do
+  defp spawn_test_monitor(%{seed: seed, hooks_module: hooks_module}, test, parent_pid, context) do
     spawn_monitor(fn ->
       ExUnit.OnExitHandler.register(self())
       generate_test_seed(seed, test)
 
       {time, test} =
         :timer.tc(fn ->
-          case exec_test_setup(test, context) do
-            {:ok, test} -> exec_test(test)
+          # apply setup_started hook
+          apply(hooks_module, :setup_started, [test, context])
+          test_setup_result = exec_test_setup(test, context)
+          # apply setup_finished hook
+          apply(hooks_module, :setup_finished, [test, context])
+          case test_setup_result do
+            {:ok, test} ->
+              # apply test_started hook
+              apply(hooks_module, :test_started, [test, context])
+              test_result = exec_test(test)
+              # apply test_started hook
+              apply(hooks_module, :test_finished, [test, context])
+              test_result
             {:error, test} -> test
           end
         end)
