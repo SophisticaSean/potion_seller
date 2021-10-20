@@ -354,7 +354,7 @@ defmodule ExUnit.Runner do
         end
       end)
     # apply suite_started hook
-    apply(hooks_module, :suite_finished, [tests, context])
+    apply(hooks_module, :suite_finished, [test_results, context])
 
     test_results
   end
@@ -471,7 +471,7 @@ defmodule ExUnit.Runner do
               apply(hooks_module, :test_started, [test, context])
               test_result = exec_test(test)
               # apply test_started hook
-              apply(hooks_module, :test_finished, [test, context])
+              apply(hooks_module, :test_finished, [test_result, context])
               test_result
             {:error, test} -> test
           end
