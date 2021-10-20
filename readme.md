@@ -13,7 +13,8 @@
   - [x] add alternative and more robust synchronous hook system similar to rspec and cucumber
     - Hooks are now implemented and working properly.
   - [ ] swap hook system (limited to max 1 hook) to a middleware system similar to `setup` or absinthe middleware
-  - [ ] protocol/behaviour with default no-op implementations for all callbacks
+  - [x] protocol/behaviour with default no-op implementations for all callbacks
+    - `ExUnit.Hooks.Behaviour` is the behaviour
   - [x] ability to pass this protocol/behaviour into ExUnit config (currently pass in anon funcs)
     - Now passed in via a `use` macro with `def overrideable`
   - [ ] figure out way to start trace with test name from the first setup block
