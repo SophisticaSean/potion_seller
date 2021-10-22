@@ -68,6 +68,8 @@ defmodule ExUnit.Runner do
   defp configure(opts, manager, runner_pid, stats_pid) do
     Enum.each(opts[:formatters], &EM.add_handler(manager, &1, opts))
 
+    hooks = opts[:hooks_module] || ExUnit.Hooks
+
     %{
       capture_log: opts[:capture_log],
       exclude: opts[:exclude],
@@ -80,7 +82,7 @@ defmodule ExUnit.Runner do
       seed: opts[:seed],
       stats_pid: stats_pid,
       timeout: opts[:timeout],
-      hooks_module: opts[:hooks_module],
+      hooks_module: hooks,
       trace: opts[:trace]
     }
   end
@@ -342,7 +344,7 @@ defmodule ExUnit.Runner do
     hooks_module = config.hooks_module
 
     # apply suite_started hook
-    apply(hooks_module, :suite_started, [tests, context])
+    apply_hooks(hooks_module, :suite_started, tests, context)
 
     test_results =
       Enum.reduce_while(tests, [], fn test, acc ->
@@ -353,8 +355,9 @@ defmodule ExUnit.Runner do
           :max_failures_reached -> {:halt, acc}
         end
       end)
-    # apply suite_started hook
-    apply(hooks_module, :suite_finished, [test_results, context])
+
+    # apply suite_finished hook
+    apply_hooks(hooks_module, :suite_finished, test_results, context)
 
     test_results
   end
@@ -461,19 +464,22 @@ defmodule ExUnit.Runner do
       {time, test} =
         :timer.tc(fn ->
           # apply setup_started hook
-          apply(hooks_module, :setup_started, [test, context])
+          apply_hooks(hooks_module, :setup_started, test, context)
           test_setup_result = exec_test_setup(test, context)
           # apply setup_finished hook
-          apply(hooks_module, :setup_finished, [test, context])
+          apply_hooks(hooks_module, :setup_finished, test, context)
+
           case test_setup_result do
             {:ok, test} ->
               # apply test_started hook
-              apply(hooks_module, :test_started, [test, context])
+              apply_hooks(hooks_module, :test_started, test, context)
               test_result = exec_test(test)
               # apply test_started hook
-              apply(hooks_module, :test_finished, [test_result, context])
+              apply_hooks(hooks_module, :test_finished, test_result, context)
               test_result
-            {:error, test} -> test
+
+            {:error, test} ->
+              test
           end
         end)
 
@@ -600,5 +606,15 @@ defmodule ExUnit.Runner do
 
   defp failed(kind, reason, stack) do
     {:failed, [{kind, Exception.normalize(kind, reason, stack), stack}]}
+  end
+
+  defp apply_hooks(ExUnit.Hooks = _hooks_module, _event, _test_or_tests, _context) do
+    # this is necessary for any pre-hooks bootstrapped Elixir compilations/tests or this will cause
+    # all tests to fail since ExUnit.Hooks didn't exist before this version
+    :ok
+  end
+
+  defp apply_hooks(hooks_module, event, test_or_tests, context) do
+    apply(hooks_module, event, [test_or_tests, context])
   end
 end

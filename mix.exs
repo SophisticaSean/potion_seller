@@ -4,7 +4,9 @@ defmodule ExUnit.MixProject do
   def project do
     [
       app: :ex_unit,
-      version: System.version(),
+      version: "1.0.1",
+      package: package(),
+      deps: deps(),
       build_per_environment: false
     ]
   end
@@ -34,6 +36,21 @@ defmodule ExUnit.MixProject do
         trace: false,
         after_suite: []
       ]
+    ]
+  end
+
+  defp deps() do
+    [
+      # dev/test
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package() do
+    [
+      name: :ex_unit_fork,
+      organization: "genesisblock",
+      files: ["lib", "mix.exs", "readme*"]
     ]
   end
 end

@@ -70,12 +70,10 @@ defmodule ExUnit.EventManager do
   end
 
   def test_started(manager, test) do
-    IO.puts("test started")
     notify(manager, {:test_started, test})
   end
 
   def test_finished(manager, test) do
-    IO.puts("test finished")
     notify(manager, {:test_finished, test})
   end
 

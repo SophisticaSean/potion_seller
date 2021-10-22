@@ -33,7 +33,12 @@ defmodule ExUnit.Hooks do
         :ok
       end
 
-      defoverridable [setup_started: 2, setup_finished: 2, test_started: 2, test_finished: 2, suite_started: 2, suite_finished: 2]
+      defoverridable setup_started: 2,
+                     setup_finished: 2,
+                     test_started: 2,
+                     test_finished: 2,
+                     suite_started: 2,
+                     suite_finished: 2
     end
   end
 end
