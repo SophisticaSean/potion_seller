@@ -473,17 +473,19 @@ defmodule ExUnit.Runner do
             {:ok, test} ->
               # apply test_started hook
               apply_hooks(hooks_module, :test_started, test, context)
-              test_result = exec_test(test)
-              # apply test_started hook
-              apply_hooks(hooks_module, :test_finished, test_result, context)
-              test_result
+              exec_test(test)
 
             {:error, test} ->
               test
           end
         end)
 
-      send(parent_pid, {self(), :test_finished, %{test | time: time}})
+      test_result = %{test | time: time}
+
+      # apply test_finished hook
+      apply_hooks(hooks_module, :test_finished, test_result, context)
+
+      send(parent_pid, {self(), :test_finished, test_result})
       exit(:shutdown)
     end)
   end
