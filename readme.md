@@ -21,3 +21,4 @@
   - [ ] actually return :ok or :passed as the state on a test that succeeded, right now `nil` means both the test hasn't run yet OR that the test has ran and passed. the only time `state` in ExUnit.Test changes is when the test fails currently.
   - [ ] need to investigate spandex_datadog addition to keep traces from being sent until their test_status is updated, otherwise its possible to get test suite traces without a status
   - [ ] fork spandex_phoenix to make it work in :test mix env, it's prematurely ending traces right now
+  - [ ] improve hooks to allow for traceable setup blocks
